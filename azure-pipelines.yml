@@ -12,8 +12,8 @@ pool:
 steps:
   - script: |
       /usr/local/bin/helm version
-      /usr/local/bin/helm version repo add stable https://charts.heml.sh/stable
-      /usr/local/bin/helm version repo update
+      /usr/local/bin/helm repo add stable https://charts.heml.sh/stable
+      /usr/local/bin/helm repo update
     displayName: 'Helm init'
   - task: HelmDeploy@0
     displayName: 'Helm install mysql'
