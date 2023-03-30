@@ -11,7 +11,7 @@ pool:
 
 steps:
   - script: |
-      /usr/local/bin/helm version --client --short
+      /usr/local/bin/helm version
       /usr/local/bin/helm version repo add stable https://charts.heml.sh/stable
       /usr/local/bin/helm version repo update
     displayName: 'Helm init'
