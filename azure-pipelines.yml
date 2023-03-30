@@ -10,14 +10,13 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-# - script: echo Hello, world!
-#   displayName: 'Run a one-line script'
-
-# - script: |
-#     echo Add other tasks to build, test, and deploy your project.
-#     echo See https://aka.ms/yaml
-#   displayName: 'Run a multi-line script'
+  - script: |
+      /usr/local/bin/helm version --client --short
+      /usr/local/bin/helm version repo add stable https://charts.heml.sh/stable
+      /usr/local/bin/helm version repo update
+    displayName: 'Helm init'
   - task: HelmDeploy@0
+    displayName: 'Helm install mysql'
     inputs:
       connectionType: 'Kubernetes Service Connection'
       kubernetesServiceConnection: 'ainhab-serviceaccount-connection'
@@ -27,6 +26,7 @@ steps:
       chartName: 'stable/mysql'
       overrideValues: 'mysqlpassword=secretpassword'
   - task: HelmDeploy@0
+    displayName: 'Helm List'
     inputs:
       connectionType: 'Kubernetes Service Connection'
       kubernetesServiceConnection: 'ainhab-serviceaccount-connection'
