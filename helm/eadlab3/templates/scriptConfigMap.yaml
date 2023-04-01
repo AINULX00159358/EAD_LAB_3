@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-scripts-configmap
+data:
+  mysqlCmd: |
+{{ (.Files.Glob "scripts/run.sh").AsConfig | indent 2 }}
