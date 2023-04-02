@@ -31,8 +31,14 @@ spec:
                key: mysql-root-password
           volumeMounts:
             - name: db-scripts
-              mountPath: /usr/local/bin
-          command: /usr/local/bin/mysqlCmd
+              mountPath: /tmp
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - >-
+                apt-get update &&
+                apt-get install mysql-client -y &&
+                ls -lrt /tmp/mysqlCmd
           ports:
             - name: http
               containerPort: 80
