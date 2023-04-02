@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "eadlab3.fullname" . }}
+  labels:
+    {{- include "eadlab3.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "eadlab3.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "eadlab3.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "eadlab3.serviceAccountName" . }}
+      volumes:
+        - name: db-scripts
+          configMap:
+            name: db-scripts-configmap
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-mysql
+                  key: mysql-root-password
+          volumeMounts:
+            - name: db-scripts
+              mountPath: /tmp/mysql
+          command: ["/bin/sh"]
+          args:
+            - -c
+            - >-
+                apt-get update &&
+                apt-get install mysql-client -y &&
+                ls -lrt /tmp/mysqlCmd
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http

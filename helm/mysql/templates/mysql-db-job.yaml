@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "eadlab3.fullname" . }}-db-job
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-2"
+    "helm.sh/hook-delete-policy": hook-succeeded
+  labels:
+    {{- include "eadlab3.labels" . | nindent 4 }}
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+         {{- include "eadlab3.selectorLabels" . | nindent 8 }}
+    spec:
+      volumes:
+        - name: db-scripts
+          configMap:
+            name: db-scripts-configmap
+        - name: db-secrets
+          secret:
+            secretName: {{ .Chart.Name }}
+            defaultMode: 0400
+      containers:
+      - name: {{ .Chart.Name }}-db-job
+        image: "imega/mysql-client:latest"
+        volumeMounts:
+          - name: db-scripts
+            mountPath: /tmp
+          - name: db-secrets
+            mountPath: /etc/secret-volume
+            readOnly: true
+        command: ["/bin/sh", "-c"]
+        args: 
+          - DB_PASSWORD=`cat /etc/secret-volume/mysql-root-password`;
+            mysql -h ead-lab3-mysql -p$DB_PASSWORD < /tmp/mysqlcmd
+      restartPolicy: Never
