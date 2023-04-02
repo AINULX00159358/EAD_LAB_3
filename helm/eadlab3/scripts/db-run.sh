@@ -1,5 +1,0 @@
-CREATE DATABASE my_test_db;
-USE my_test_db;
-CREATE TABLE Person( PersonID int, LastName varchar(30),FirstName varchar(30), Addr varchar(255), City varchar(255));
-INSERT INTO Person(PersonID, LastName, FirstName, Addr, City) VALUES (123456, "Nolan", "Karen", "TU Dublin Tallaght", "Dublin");
-SELECT * FROM Person INTO OUTFILE '/tmp/person.txt'

@@ -27,7 +27,7 @@ spec:
            - name: MYSQL_ROOT_PASSWORD
              valueFrom:
                secretKeyRef:
-               name: mysql
+               name: {{ .Chart.Name }}-mysql
                key: mysql-root-password
           volumeMounts:
             - name: db-scripts
