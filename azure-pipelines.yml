@@ -15,21 +15,4 @@ steps:
       /usr/local/bin/helm repo add stable https://charts.helm.sh/stable
       /usr/local/bin/helm repo update
     displayName: 'Helm init'
-  - task: HelmDeploy@0
-    displayName: 'Helm install mysql'
-    inputs:
-      connectionType: 'Kubernetes Service Connection'
-      kubernetesServiceConnection: 'ainhab-serviceaccount-connection'
-      namespace: 'default'
-      command: 'install'
-      chartType: 'Name'
-      chartName: 'stable/mysql'
-      overrideValues: 'mysqlpassword=secretpassword'
-  - task: HelmDeploy@0
-    displayName: 'Helm List'
-    inputs:
-      connectionType: 'Kubernetes Service Connection'
-      kubernetesServiceConnection: 'ainhab-serviceaccount-connection'
-      namespace: 'default'
-      command: 'ls'
-      arguments: '-a'
+ 
