@@ -1,18 +1,10 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "eadlab3.fullname" . }}-db-job
-  annotations:
-    "helm.sh/hook": post-install
-    "helm.sh/hook-weight": "-2"
-  labels:
-    {{- include "eadlab3.labels" . | nindent 4 }}
+  name: eadlab3-db-job
 spec:
   backoffLimit: 2
   template:
-    metadata:
-      labels:
-         {{- include "eadlab3.selectorLabels" . | nindent 8 }}
     spec:
       volumes:
         - name: db-scripts
@@ -20,10 +12,10 @@ spec:
             name: db-scripts-configmap
         - name: db-secrets
           secret:
-            secretName: {{ .Chart.Name }}
+            secretName: ead-lab3-mysql
             defaultMode: 0400
       containers:
-      - name: {{ .Chart.Name }}-db-job
+      - name: ead-lab3-mysql-db-job
         image: "imega/mysql-client:latest"
         volumeMounts:
           - name: db-scripts
