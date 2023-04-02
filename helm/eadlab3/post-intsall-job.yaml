@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: node-app-job
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      volumes:
+        - name: db-scripts
+          configMap:
+            name: db-scripts-configmap
+        - name: db-secrets
+          secret:
+            secretName: ead-lab3-mysql
+            defaultMode: 0400
+      containers:
+      - name: node-app-job
+        image: imega/mysql-client:latest
+        volumeMounts:
+          - name: db-scripts
+            mountPath: /tmp
+          - name: db-secrets
+            mountPath: /etc/secret-volume
+            readOnly: true
+        command: ["/bin/sh", "-c"]
+        args: 
+          - DB_PASSWORD=`cat /etc/secret-volume/mysql-root-password`;
+            mysql -h ead-lab3-mysql -p$DB_PASSWORD < /tmp/mysqlcmd
+      restartPolicy: Never

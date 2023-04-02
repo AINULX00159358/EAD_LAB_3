@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: ubuntu-latest
+  repository: ubuntu
   pullPolicy: IfNotPresent
-  tag: ""
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ""
@@ -35,5 +35,3 @@ tolerations: []
 
 affinity: {}
 
-mysql:
-  mysqlRootPassword: teaseadlab3

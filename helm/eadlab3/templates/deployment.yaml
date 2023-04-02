@@ -24,30 +24,15 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-           - name: MYSQL_ROOT_PASSWORD
-             valueFrom:
-               secretKeyRef:
-               name: {{ .Chart.Name }}-mysql
-               key: mysql-root-password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ead-lab3-mysql
+                  key: mysql-root-password
+          env:
+            - name: mysql-host
+              value: ead-lab3-mysql
+          command: ["/bin/sleep", "3650d"] 
           volumeMounts:
             - name: db-scripts
               mountPath: /tmp
-          command: ["/bin/sh"]
-          args:
-            - -c
-            - >-
-                apt-get update &&
-                apt-get install mysql-client -y &&
-                ls -lrt /tmp/mysqlCmd
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
