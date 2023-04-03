@@ -1,0 +1,60 @@
+name: $(date:yyyyMMdd)$(rev:.r)
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: refs/heads/HelmJob
+jobs:
+- job: Job_1
+  displayName: Agent job 1
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - checkout: self
+    clean: true
+    fetchTags: false
+  - task: KubectlInstaller@0
+    displayName: Install Kubectl 1.26.3
+    inputs:
+      kubectlVersion: 1.26.3
+  - task: HelmInstaller@0
+    displayName: Install Helm 3.9.3
+    inputs:
+      helmVersion: 3.9.3
+      kubectlVersion: 1.26.3
+  - task: CmdLine@2
+    displayName: helm dependency build
+    inputs:
+      script: >-
+        pwd
+
+        cd helm/eadlab3
+
+        helm dependency build
+  - task: HelmDeploy@0
+    displayName: 'helm Deploy MySql and service'
+    inputs:
+      connectionType: Kubernetes Service Connection
+      kubernetesServiceEndpoint: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
+      namespace: default
+      command: 'upgrade '
+      chartType: FilePath
+      chartPath: helm/eadlab3
+      releaseName: ead-lab3-mysql
+      upgradetiller: false
+      save: false
+      install: false
+      arguments: --install
+  - task: KubernetesManifest@0
+    displayName: deploy job
+    inputs:
+      kubernetesServiceConnection: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
+      namespace: default
+      manifests: helm/eadlab3/mysql-db-job.yaml
+  - task: Kubernetes@1
+    inputs:
+      kubernetesServiceEndpoint: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
+      namespace: default
+      command: exec
+      arguments: -it deployment/ead-lab3-mysql -- mysql -h ead-lab3-mysql -pteaseadlab3 -e "show databases; use my_test_db; select * from Person"
+...
