@@ -8,13 +8,6 @@ trigger: none
 pool:
   vmImage: ubuntu-latest
 
-# steps:
-#  - script: |
-#      /usr/local/bin/helm version
-#      /usr/local/bin/helm repo add stable https://charts.helm.sh/stable
-#      /usr/local/bin/helm repo update
-#    displayName: 'Helm init'
-
 # Deploying Kubernets and Helm to Agent Node
 steps:
   - checkout: self
@@ -35,10 +28,9 @@ steps:
   - task: CmdLine@2
     displayName: Run helm dependency build
     inputs:
-      script: >-
-        pwd
-        cd helm/eadlab3
-        helm dependency build
+      script: |
+            cd helm/eadlab3
+            helm dependency build
 
   - task: HelmDeploy@0
     displayName: 'helm upgrade or install app'
