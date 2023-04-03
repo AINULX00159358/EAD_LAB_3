@@ -6,7 +6,7 @@ resources:
     ref: refs/heads/HelmJob
 jobs:
 - job: Job_1
-  displayName: Agent job 1
+  displayName: 'Agent job for EAD Lab3'
   pool:
     vmImage: ubuntu-latest
   steps:
@@ -18,12 +18,12 @@ jobs:
     inputs:
       kubectlVersion: 1.26.3
   - task: HelmInstaller@0
-    displayName: Install Helm 3.9.3
+    displayName: 'Install Helm 3.9.3'
     inputs:
       helmVersion: 3.9.3
       kubectlVersion: 1.26.3
   - task: CmdLine@2
-    displayName: helm dependency build
+    displayName: 'running helm dependency build'
     inputs:
       script: >-
         pwd
@@ -32,7 +32,7 @@ jobs:
 
         helm dependency build
   - task: HelmDeploy@0
-    displayName: 'helm Deploy MySql and service'
+    displayName: 'Deploy MySql, Secrets and Service using helm'
     inputs:
       connectionType: Kubernetes Service Connection
       kubernetesServiceEndpoint: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
@@ -46,12 +46,13 @@ jobs:
       install: false
       arguments: --install
   - task: KubernetesManifest@0
-    displayName: deploy job
+    displayName: 'Deploy job to create database and table'
     inputs:
       kubernetesServiceConnection: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
       namespace: default
       manifests: helm/eadlab3/mysql-db-job.yaml
   - task: Kubernetes@1
+    displayName: 'review database and table created'
     inputs:
       kubernetesServiceEndpoint: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
       namespace: default
