@@ -46,11 +46,20 @@ steps:
       save: false
       install: false
       arguments: --install
-
+      
+steps:
   - task: KubernetesManifest@0
     displayName: deploy Database Job
     inputs:
       kubernetesServiceConnection: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
       namespace: default
       manifests: helm/eadlab3/mysql-db-job.yaml
+
+  - task: Kubernetes@1
+    displayName: 'review database and table created'
+    inputs:
+      kubernetesServiceEndpoint: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
+      namespace: default
+      command: exec
+      arguments: -it deployment/ead-lab3-mysql -- mysql -h ead-lab3-mysql -pteaseadlab3 -e "show databases; use my_test_db; select * from Person"
 ...
