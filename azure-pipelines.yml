@@ -3,16 +3,62 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- main
+trigger: none
 
 pool:
   vmImage: ubuntu-latest
 
+# steps:
+#  - script: |
+#      /usr/local/bin/helm version
+#      /usr/local/bin/helm repo add stable https://charts.helm.sh/stable
+#      /usr/local/bin/helm repo update
+#    displayName: 'Helm init'
+
+# Deploying Kubernets and Helm to Agent Node
 steps:
-  - script: |
-      /usr/local/bin/helm version
-      /usr/local/bin/helm repo add stable https://charts.helm.sh/stable
-      /usr/local/bin/helm repo update
-    displayName: 'Helm init'
- 
+  - checkout: self
+    clean: true
+    fetchTags: false
+    
+  - task: KubectlInstaller@0
+    displayName: Install Kubectl 1.26.3
+    inputs:
+      kubectlVersion: 1.26.3
+    
+  - task: HelmInstaller@0
+    displayName: Install Helm 3.9.3
+    inputs:
+      helmVersion: 3.9.3
+      kubectlVersion: 1.26.3
+    
+  - task: CmdLine@2
+    displayName: Run helm dependency build
+    inputs:
+      script: >-
+        pwd
+        cd helm/eadlab3
+        helm dependency build
+
+  - task: HelmDeploy@0
+    displayName: 'helm upgrade or install app'
+    inputs:
+      connectionType: Kubernetes Service Connection
+      kubernetesServiceEndpoint: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
+      namespace: default
+      command: 'upgrade '
+      chartType: FilePath
+      chartPath: helm/eadlab3
+      releaseName: ead-lab3-mysql
+      upgradetiller: false
+      save: false
+      install: false
+      arguments: --install
+
+  - task: KubernetesManifest@0
+    displayName: deploy Database Job
+    inputs:
+      kubernetesServiceConnection: 52e7b636-9ce7-4f7d-be99-3bb1c59c1584
+      namespace: default
+      manifests: helm/eadlab3/mysql-db-job.yaml
+...
